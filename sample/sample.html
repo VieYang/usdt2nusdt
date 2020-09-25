@@ -1,13 +1,13 @@
 <html>
     <head>
-        <title>Sample Dapp</title>
+        <title>USDT2NUSDT</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     </head>
     <body>
         <div class="container">
             <nav class="navbar navbar-light bg-light">
                 <a class="navbar-brand" href="/">
-                    <span class="navbar-brand mb-0 h1">Sample Dapp</span>
+                    <span class="navbar-brand mb-0 h1">USDT2NUSDT</span>
                 </a>
                 <div class="my-2 my-sm-0">
                     <button class="btn btn-primary" id="login_button" type="button">Login web3</button>
@@ -43,7 +43,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">netwrok Type / Id</h5>
-                        <span id='web3_netType'>---</span>                        
+                        <span id='web3_netType'>---</span>
                         <span>/</span>
                         <span id='web3_netId'>---</span>
                     </div>
@@ -52,68 +52,26 @@
             <br />
             <div class="card-deck">
                 <div class="card">
-                    <div class="card-header">Sign Message</div>
+                    <div class="card-header">Transfer USDT from ethereum to NewChain</div>
                     <div class="card-body">
-                        <div class="input-group mb-3">
-                            <input
-                                id="sign_input"
-                                type="text"
-                                class="form-control"
-                                placeholder="message"
-                                aria-label="message"
-                                aria-describedby="web3_sign_button">
-                            <div class="input-group-append">
-                            <button class="btn btn-primary" type="button" id="web3_sign_button">Sign</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer text-muted">
-                        <span>Sign Result: </span>
-                        <span id='web3_sign_result'></span>                        
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">Personal Sign Message</div>
-                    <div class="card-body">
-                        <div class="input-group mb-3">
-                            <input
-                                id="personal_sign_input"
-                                type="text"
-                                class="form-control"
-                                placeholder="message"
-                                aria-label="message"
-                                aria-describedby="web3_personal_sign_button">
-                            <div class="input-group-append">
-                                <button class="btn btn-primary" type="button" id="web3_personal_sign_button">Sign</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer text-muted">
-                        <span>Sign Result: </span>
-                        <span id='web3_personal_sign_result'></span>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">Send Transaction</div>
-                    <div class="card-body">
-                        <h5 class="card-title">Recipient Address</h5>
-                        <textarea class="form-control" aria-label="With textarea" id="web3_send_tx_address"></textarea>
+                        <h5 class="card-title">Your NEW Address</h5>
+                        <input class="form-control" placeholder="NEW182XXXXXXXXXXXXXXXXXX" aria-label="With textarea" id="web3_send_tx_address">
                         <br />
-                        <h5 class="card-title">ETH Amount</h5>
+                        <h5 class="card-title">USDT Amount</h5>
                         <div class="input-group mb-3">
                             <input
                                 id="web3_send_tx_amount"
                                 type="text"
                                 class="form-control"
-                                placeholder="ETH send amount"
-                                aria-label="ETH send amount"
+                                placeholder="USDT send amount"
+                                aria-label="USDT send amount"
                                 aria-describedby="web3_send_tx_button">
                             <div class="input-group-append">
                                 <button
                                     class="btn btn-primary"
                                     type="button"
                                     id="web3_send_tx_button">
-                                    Send
+                                    Warp drive
                                 </button>
                             </div>
                         </div>
@@ -214,12 +172,24 @@ $("#web3_personal_sign_button").click(() => {
 $("#web3_send_tx_button").click(() => {
     const recipient = $('#web3_send_tx_address').val();
     const sendAmount = $('#web3_send_tx_amount').val();
-    const WEI = 1000000000000000000;
+    const USDTWEI = 1000000;
+    const usdtContract = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
+    const newtonUSDT = "0xddD17c2f27cB9684Ea399057f873704bB7162aF6";
+    const abiOfContract = [{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}];
+
+    if(!(web3 && web3.eth && web3.eth.defaultAccount)) {
+        alert("No accounts exposed!");
+        return;
+    }
+
+    var value = (sendAmount* USDTWEI).toString();
+    var myContract = web3.eth.Contract(abiOfContract,usdtContract);
+    var getData = myContract.methods.transfer(newtonUSDT,value).encodeABI();
+    var data = getData + web3.utils.toHex(recipient).substring(2);
     const transactionObject = {
         from: web3.eth.defaultAccount,
-        to: recipient,
-        value: (sendAmount* WEI).toString(),
-        gas: 21000,
+        to: usdtContract,
+        data: data,
     };
     web3.eth.sendTransaction(transactionObject)
     .on('transactionHash', (hash) => {
